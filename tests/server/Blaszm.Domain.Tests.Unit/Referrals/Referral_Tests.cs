@@ -19,6 +19,5 @@ public class Referral_Tests
 
         // assert
         referral.Should().NotBeNull();
-        referral.Patient.Id.Should().Be(patient.Id);
     }
 }
