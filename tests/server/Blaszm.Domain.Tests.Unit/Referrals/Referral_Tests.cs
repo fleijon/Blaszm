@@ -12,7 +12,7 @@ public class Referral_Tests
     public void Should_Be_Able_To_Create_Referral(PatientName name)
     {
         // arrange
-        var patient = Patient.Create(name);
+        var patient = new Patient(name);
 
         // act
         var referral = Referral.Create(patient);

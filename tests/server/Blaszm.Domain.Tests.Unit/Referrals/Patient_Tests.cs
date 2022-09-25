@@ -12,7 +12,7 @@ public class Patient_Tests
     public void Should_Be_Able_To_Create_Patient(PatientName name)
     {
         // act
-        var patient = Patient.Create(name);
+        var patient = new Patient(name);
 
         // assert
         patient.Should().NotBeNull();
