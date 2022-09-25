@@ -1,6 +1,3 @@
-using System.Linq;
-using System;
-using System.IO;
 using Blaszm.Domain.Referrals.Events;
 
 namespace Blaszm.Domain.Referrals;
@@ -10,39 +7,41 @@ public sealed class Referral : IAggregate
     private Referral(IEnumerable<IDomainEvent> domainEvents)
     {
         _domainEvents = domainEvents.OrderBy(de => de.Version).ToList();
-        foreach(var @event in _domainEvents)
+        foreach (var @event in _domainEvents)
         {
-            if(@event is v1.ReferralCreated createdEvent)
+            switch (@event)
             {
-                Id = createdEvent.Id;
-                Patient = createdEvent.Patient;
-            }
-            else if(@event is v1.PatientUpdated patientUpdated)
-            {
-                UpdatePatient_Internal(patientUpdated);
-            }
-            else
-            {
-                throw new NotImplementedException(@event.GetType().Name);
+                case v1.ReferralCreated createdEvent:
+                    Id = createdEvent.Id;
+                    Patient = createdEvent.Patient;
+                    break;
+                case v1.PatientUpdated patientUpdated:
+                    UpdatePatient_Internal(patientUpdated);
+                    break;
+                default:
+                    throw new NotImplementedException(@event.GetType().Name);
             }
         }
 
-        if(Patient is null)
+        if (Patient is null)
             throw new InvalidOperationException("Patient info could not be found.");
     }
 
-    private List<IDomainEvent> _domainEvents;
+    private readonly List<IDomainEvent> _domainEvents;
     public Guid Id { get; }
     public Patient Patient { get; private set; }
     public IEnumerable<IDomainEvent> DomainEvents => _domainEvents;
-    public static Referral Projection(IEnumerable<IDomainEvent> stream) => new Referral(stream);
+    public static Referral Projection(IEnumerable<IDomainEvent> stream) => new(stream);
 
     public static Referral Create(Patient patient)
     {
         var id = Guid.NewGuid();
         var createdEvent = new v1.ReferralCreated(id, patient, 0);
-        var domainEvents = new List<IDomainEvent>();
-        domainEvents.Add(createdEvent);
+        var domainEvents = new List<IDomainEvent>
+        {
+            createdEvent
+        };
+
         return new Referral(domainEvents);
     }
 
@@ -53,10 +52,7 @@ public sealed class Referral : IAggregate
         _domainEvents.Add(@event);
     }
 
-    private void UpdatePatient_Internal(v1.PatientUpdated patientUpdated)
-    {
-        Patient = patientUpdated.Patient;
-    }
+    private void UpdatePatient_Internal(v1.PatientUpdated patientUpdated) => Patient = patientUpdated.Patient;
 
-    private int GetCurrentVersion() => _domainEvents.Select(de => de.Version).Max();
+    private int GetCurrentVersion() => _domainEvents.Max(de => de.Version);
 }
