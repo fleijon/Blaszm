@@ -20,7 +20,8 @@ public static class AddReferral
                 new Patient(
                     new PatientName(
                         request.PatientInfo.FirstName,
-                        request.PatientInfo.LastName)));
+                        request.PatientInfo.LastName),
+                    new BirthDate()));
 
             await _repo.Store(referral);
 

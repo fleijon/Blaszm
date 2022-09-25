@@ -2,7 +2,6 @@ namespace Blaszm.Domain.Referrals;
 
 public sealed class PatientName
 {
-
     public PatientName(string firstName, string lastName)
     {
         FirstName = firstName;

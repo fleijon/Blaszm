@@ -20,8 +20,11 @@ public static class UpdatePatientInfo
             referral.UpdatePatient(
                 new Patient(
                     new PatientName(
-                            request.NewPatientInfo.FirstName,
-                            request.NewPatientInfo.LastName)));
+                        request.NewPatientInfo.FirstName,
+                        request.NewPatientInfo.LastName),
+                    new BirthDate()));
+
+            await _repo.Store(referral);
 
             return Unit.Value;
         }
